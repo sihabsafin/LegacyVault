@@ -1,0 +1,9 @@
+export const APP_CONFIG = {
+  NAME: "LegacyVault",
+
+  VERSION: "1.0.0",
+
+  HEARTBEAT_DEFAULT_DAYS: 90,
+
+  GRACE_PERIOD_DEFAULT_DAYS: 14,
+};
