@@ -4,4 +4,109 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  COUNTDOWN
+  RELEASED
+  SUSPENDED
+}
+
+enum Plan {
+  FREE
+  PRO
+  FAMILY
+  ENTERPRISE
+}
+
+enum TokenType {
+  EMAIL_VERIFY
+  MAGIC_LINK
+  PASSWORD_RESET
+}
+
+model User {
+  id String @id @default(cuid())
+
+  name String?
+
+  email String @unique
+
+  passwordHash String
+
+  emailVerified Boolean @default(false)
+
+  status UserStatus @default(ACTIVE)
+
+  plan Plan @default(FREE)
+
+  lastHeartbeatAt DateTime?
+
+  inactivityDays Int @default(90)
+
+  gracePeriodDays Int @default(14)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+
+  tokens Token[]
+
+  eventLogs EventLog[]
+}
+
+model Session {
+  id String @id @default(cuid())
+
+  userId String
+
+  tokenHash String
+
+  deviceName String?
+
+  ipAddress String?
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Token {
+  id String @id @default(cuid())
+
+  userId String
+
+  type TokenType
+
+  tokenHash String
+
+  expiresAt DateTime
+
+  usedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EventLog {
+  id String @id @default(cuid())
+
+  userId String
+
+  type String
+
+  details Json?
+
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
