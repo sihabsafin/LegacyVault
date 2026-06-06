@@ -24,4 +24,15 @@ export const userRepository = {
       data,
     });
   },
+
+  verifyEmail(id: string) {
+    return prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        emailVerified: true,
+      },
+    });
+  },
 };

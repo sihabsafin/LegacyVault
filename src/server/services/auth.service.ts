@@ -84,4 +84,43 @@ export const authService = {
       verifyToken,
     };
   },
+
+  async verifyEmail(
+    tokenHash: string
+  ) {
+    const token =
+      await tokenRepository.findValidToken(
+        tokenHash
+      );
+
+    if (!token) {
+      throw new Error(
+        "Invalid token"
+      );
+    }
+
+    if (
+      token.expiresAt <
+      new Date()
+    ) {
+      throw new Error(
+        "Token expired"
+      );
+    }
+
+    await userRepository.verifyEmail(
+      token.userId
+    );
+
+    await tokenRepository.markAsUsed(
+      token.id
+    );
+
+    await eventRepository.create({
+      userId: token.userId,
+      type: "EMAIL_VERIFIED",
+    });
+
+    return true;
+  },
 };

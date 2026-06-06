@@ -1,9 +1,11 @@
+import { TokenType } from "@prisma/client";
+
 import { prisma } from "@/lib/db/prisma";
 
 export const tokenRepository = {
   create(data: {
     userId: string;
-    type: any;
+    type: TokenType;
     tokenHash: string;
     expiresAt: Date;
   }) {
@@ -16,6 +18,26 @@ export const tokenRepository = {
     return prisma.token.findFirst({
       where: {
         tokenHash,
+      },
+    });
+  },
+
+  findValidToken(tokenHash: string) {
+    return prisma.token.findFirst({
+      where: {
+        tokenHash,
+        usedAt: null,
+      },
+    });
+  },
+
+  markAsUsed(id: string) {
+    return prisma.token.update({
+      where: {
+        id,
+      },
+      data: {
+        usedAt: new Date(),
       },
     });
   },
